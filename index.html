@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>N-Back Task</title>
+</head>
+<body>
+  <h1>N-Back Task</h1>
+
+  <div id="sequence"></div>
+
+  <script>
+    // Generate a sequence of 100 random numbers from 0 to 100
+    var sequence = [];
+    var repetitionCount = 0; // Count of repetitions after two numbers
+    var targetRepetitionCount = 20; // Target repetition count for difficulty level 3
+
+    // Generate random numbers with repetitions
+    for (var i = 0; i < 100; i++) {
+      var number = Math.floor(Math.random() * 101);
+      sequence.push(number);
+      
+      // Check if the same number is repeated after two numbers
+      if (i >= 2 && sequence[i] === sequence[i - 2]) {
+        repetitionCount++;
+      }
+      
+      // Ensure at least 20 repetitions after two numbers
+      if (repetitionCount >= targetRepetitionCount) {
+        break;
+      }
+    }
+
+    // Difficulty level (1, 2, or 3)
+    var difficulty = 3;
+
+    // Initialize variables
+    var currentNumber = null;
+    var repetitions = 0;
+    var alternateCount = 0;
+    var consecutiveCount = 0;
+    var currentIndex = 0;
+
+    // Display the sequence
+    var sequenceElement = document.getElementById("sequence");
+
+    // Function to display the next number
+    function displayNextNumber() {
+      if (currentIndex < sequence.length) {
+        sequenceElement.innerHTML = sequence[currentIndex];
+        currentIndex++;
+        setTimeout(displayNextNumber, 2000);
+      } else {
+        sequenceElement.innerHTML = "Sequence Complete";
+        calculateRepetitions();
+      }
+    }
+
+    // Start displaying the numbers
+    setTimeout(displayNextNumber, 2000);
+
+    // Function to update the display and check for repetitions
+    function checkRepetitions(number) {
+      var messageElement = document.getElementById("message");
+
+      if (currentNumber === number) {
+        repetitions++;
+        messageElement.innerHTML = "Repetitions: " + repetitions;
+      } else {
+        currentNumber = number;
+        repetitions = 0;
+        messageElement.innerHTML = "No repetitions";
+      }
+
+      // Check difficulty level
+      if (difficulty === 2 && repetitions === 1) {
+        // User should remember if the same number is displayed alternatively
+        messageElement.innerHTML = "Remember the alternate repetition!";
+        alternateCount++;
+      } else if (difficulty === 3 && repetitions === 2) {
+        // User should remember if the same number is repeated after two numbers
+        messageElement.innerHTML = "Remember the repetition after two numbers!";
+        repetitionCount++;
+      } else if (difficulty === 1 && repetitions > 0) {
+        // User should remember if the same number is displayed consequently
+        consecutiveCount += repetitions;
+      }
+    }
+
+    // Function to handle user input
+    function handleInput() {
+      var userInput = document.getElementById("userInput").value;
+      checkRepetitions(parseInt(userInput));
+    }
+
+    // Function to calculate and display the repetitions count after the sequence completes
+    function calculateRepetitions() {
+      var messageElement = document.getElementById("message");
+
+      if (difficulty === 2) {
+        messageElement.innerHTML = "Alternate Repetitions: " + alternateCount;
+      } else if (difficulty === 3) {
+        messageElement.innerHTML = "Repetitions after Two Numbers: " + repetitionCount + " (Target: " + targetRepetitionCount + ")";
+      } else if (difficulty === 1) {
+        messageElement.innerHTML = "Consecutive Repetitions: " + consecutiveCount;
+      }
+    }
+
+    // Add event listener to the input field
+    window.addEventListener("DOMContentLoaded", function () {
+      var userInputElement = document.getElementById("userInput");
+      userInputElement.addEventListener("change", handleInput);
+    });
+  </script>
+</body>
+</html>
+
+
