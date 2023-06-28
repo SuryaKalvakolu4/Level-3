@@ -2,14 +2,28 @@
 <html>
 <head>
   <title>N-Back Task</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+    #sequence {
+      font-size: 50px;
+    }
+    #message {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <h1>N-Back Task</h1>
 
   <div id="sequence"></div>
-
-  <label for="userInput">Enter the number:</label>
-  <input type="number" id="userInput" />
 
   <div id="message">No repetitions</div>
 
@@ -17,21 +31,16 @@
     // Generate a sequence of 100 random numbers from 0 to 100
     var sequence = [];
     var repetitionCount = 0; // Count of repetitions after two numbers
-    var targetRepetitionCount = 20; // Target repetition count for difficulty level 3
+    var targetRepetitionCount = getRandomInt(10, 16); // Target repetition count for difficulty level 3
 
     // Generate random numbers with repetitions
-    for (var i = 0; i < 100; i++) {
-      var number = Math.floor(Math.random() * 101);
+    while (repetitionCount < targetRepetitionCount) {
+      var number = getRandomInt(0, 101);
       sequence.push(number);
-      
+
       // Check if the same number is repeated after two numbers
-      if (i >= 2 && sequence[i] === sequence[i - 2]) {
+      if (sequence.length >= 3 && sequence[sequence.length - 1] === sequence[sequence.length - 3]) {
         repetitionCount++;
-      }
-      
-      // Ensure at least 20 repetitions after two numbers
-      if (repetitionCount >= targetRepetitionCount) {
-        break;
       }
     }
 
@@ -53,15 +62,18 @@
       if (currentIndex < sequence.length) {
         sequenceElement.innerHTML = sequence[currentIndex];
         currentIndex++;
-        setTimeout(displayNextNumber, 2000);
       } else {
-        sequenceElement.innerHTML = "Sequence Complete";
+        sequenceElement.innerHTML = "Sequence Completed";
         calculateRepetitions();
+        clearTimeout(displayNextNumberTimeout); // Stop displaying numbers after the sequence completes
+        return;
       }
+
+      displayNextNumberTimeout = setTimeout(displayNextNumber, 2000);
     }
 
     // Start displaying the numbers
-    setTimeout(displayNextNumber, 2000);
+    var displayNextNumberTimeout = setTimeout(displayNextNumber, 2000);
 
     // Function to update the display and check for repetitions
     function checkRepetitions(number) {
@@ -91,12 +103,6 @@
       }
     }
 
-    // Function to handle user input
-    function handleInput() {
-      var userInput = document.getElementById("userInput").value;
-      checkRepetitions(parseInt(userInput));
-    }
-
     // Function to calculate and display the repetitions count after the sequence completes
     function calculateRepetitions() {
       var messageElement = document.getElementById("message");
@@ -104,17 +110,23 @@
       if (difficulty === 2) {
         messageElement.innerHTML = "Alternate Repetitions: " + alternateCount;
       } else if (difficulty === 3) {
-        messageElement.innerHTML = "Repetitions after Two Numbers: " + repetitionCount + " (Target: " + targetRepetitionCount + ")";
+        messageElement.innerHTML = "Repetitions after Two Numbers: " + repetitionCount;
       } else if (difficulty === 1) {
         messageElement.innerHTML = "Consecutive Repetitions: " + consecutiveCount;
       }
     }
 
-    // Add event listener to the input field
-    window.addEventListener("DOMContentLoaded", function () {
-      var userInputElement = document.getElementById("userInput");
-      userInputElement.addEventListener("change", handleInput);
-    });
+    // Function to generate a random integer within a range
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // End the task after 3 minutes (180,000 milliseconds)
+    setTimeout(function() {
+      clearTimeout(displayNextNumberTimeout); // Stop displaying numbers
+      sequenceElement.innerHTML = "Sequence Completed";
+      calculateRepetitions();
+    }, 180000);
   </script>
 </body>
 </html>
